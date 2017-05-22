@@ -15,6 +15,8 @@ services:
     # программы, занимающие 80 порт, должны быть, конечно же, выключены
     ports:
       - 80:80
+    depends_on: # этот контейнер зависит от php и связывается с ним
+      - php
     volumes_from: # берем волумы, проброшенные с контейнера data
       - data
 
@@ -28,6 +30,14 @@ services:
     ports:
       - 3000:8080
 
+  php:
+    image: atnartur/php:7.0.11-fpm-phalcon3.0.1
+    volumes_from:
+      - data
+    volumes:
+      # именованный волум - хранится в недрах докера в файловой системе
+      - system-tmp:/tmp
+
   # подключем контейнер data, который был собран на предыдущем шаге
   data:
     image: docker_test_project
@@ -36,3 +46,8 @@ services:
     volumes:
       - /etc/nginx
       - ./:/srv/www/app
+
+# определение волумов - подробнее https://docs.docker.com/engine/tutorials/dockervolumes/
+volumes:
+  system-tmp:
+    driver: local
