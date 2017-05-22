@@ -32,11 +32,36 @@ services:
 
   php:
     image: atnartur/php:7.0.11-fpm-phalcon3.0.1
+    working_dir: /srv/www/app # рабочая директория, в которй будут запускаться все команды
+    # ждем полного запуска базы данных, выполняем миграции и запускаем php-fpm
+    command: sh -c "./wait-for-it.sh db:5432 && php vendor/bin/phinx migrate && php-fpm -RF"
+    depends_on:
+      - db
     volumes_from:
       - data
     volumes:
       # именованный волум - хранится в недрах докера в файловой системе
       - system-tmp:/tmp
+
+  db:
+    image: postgres:9.6
+    ports:
+      - 5432:5432
+    # проброс переменных окружения
+    environment:
+      POSTGRES_DB: test
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: password
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  # админка БД
+  pgweb:
+    image: donnex/pgweb
+    depends_on: # зависит от базы данных
+      - db
+    ports: # запускается на нестандартном порту чтобы не блокировать основной порт
+      - 8081:8080
 
   # подключем контейнер data, который был собран на предыдущем шаге
   data:
@@ -50,4 +75,6 @@ services:
 # определение волумов - подробнее https://docs.docker.com/engine/tutorials/dockervolumes/
 volumes:
   system-tmp:
+    driver: local
+  db:
     driver: local
