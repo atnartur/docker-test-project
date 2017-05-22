@@ -18,6 +18,16 @@ services:
     volumes_from: # берем волумы, проброшенные с контейнера data
       - data
 
+  # nodejs container
+  daemon:
+    image: node:6
+    command: node app # команда для запуска в контейнере
+    working_dir: /srv/www/app # рабочая директория
+    volumes_from:
+      - data
+    ports:
+      - 3000:8080
+
   # подключем контейнер data, который был собран на предыдущем шаге
   data:
     image: docker_test_project
