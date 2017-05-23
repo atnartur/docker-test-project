@@ -1,3 +1,6 @@
 # Docker test project
 
-Запуск nodejs: `node app` 
+```bash
+docker build -t docker_test_project -f docker/Dockerfile .
+docker-compose up
+```
